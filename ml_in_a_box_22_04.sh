@@ -3,7 +3,7 @@
 # ==================================================================
 # Module list
 # ------------------------------------------------------------------
-# python                3.9.14           (apt)
+# python                3.10.12          (apt)
 # torch                 1.12.1           (pip)
 # torchvision           0.13.1           (pip)
 # torchaudio            0.12.1           (pip)
@@ -106,48 +106,45 @@
 # Python
 # ------------------------------------------------------------------
 
-    #Based on https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa
-
-    # Adding repository for python3.9
     DEBIAN_FRONTEND=noninteractive \
     sudo $APT_INSTALL software-properties-common
-    sudo add-apt-repository ppa:deadsnakes/ppa -y
 
-    # Installing python3.9
+    # Installing python3.10
     DEBIAN_FRONTEND=noninteractive sudo $APT_INSTALL \
-    python3.9 \
-    python3.9-dev \
-    python3.9-venv \
+    python3.10 \
+    python3.10-dev \
+    python3.10-venv \
     python3-distutils-extra
 
-    # Add symlink so python and python3 commands use same python3.9 executable
-    sudo ln -s /usr/bin/python3.9 /usr/local/bin/python3
-    sudo ln -s /usr/bin/python3.9 /usr/local/bin/python
+    # Add symlink so python and python3 commands use same python3.10 executable
+    sudo ln -s /usr/bin/python3.10 /usr/local/bin/python3
+    sudo ln -s /usr/bin/python3.10 /usr/local/bin/python
 
     # Installing pip
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.9
+    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
     export PATH=$PATH:/home/paperspace/.local/bin
 
 
 # ==================================================================
-# Installing CUDA packages (CUDA Toolkit 11.7.1 & CUDNN 8.5.0)
+# Installing CUDA packages (CUDA Toolkit 12.2.2 & CUDNN 8.9.4)
 # ------------------------------------------------------------------
 
     # Based on https://developer.nvidia.com/cuda-toolkit-archive
     # Based on https://developer.nvidia.com/rdp/cudnn-archive
 
-    wget https://developer.download.nvidia.com/compute/cuda/11.7.1/local_installers/cuda_11.7.1_515.65.01_linux.run
-    sudo sh cuda_11.7.1_515.65.01_linux.run --silent --toolkit
-    export PATH=$PATH:/usr/local/cuda-11.7/bin
-    export LD_LIBRARY_PATH=/usr/local/cuda-11.7/lib64
-    rm cuda_11.7.1_515.65.01_linux.run
+    wget https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_535.104.05_linux.run
+    sudo sh cuda_12.2.2_535.104.05_linux.run --silent --toolkit
+    export PATH=$PATH:/usr/local/cuda-12.2/bin
+    export LD_LIBRARY_PATH=/usr/local/cuda-12.2/lib64
+    rm cuda_12.2.2_535.104.05_linux.run
 
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-    sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-    sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
-    sudo $APT_INSTALL libcudnn8=8.5.0.*-1+cuda11.7
-    sudo $APT_INSTALL libcudnn8-dev=8.5.0.*-1+cuda11.7
+
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+    sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+    sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /"
+    sudo $APT_INSTALL libcudnn8=8.9.4.*-1+cuda12.2
+    sudo $APT_INSTALL libcudnn8-dev=8.9.4.*-1+cuda12.2
 
 
 # ==================================================================
@@ -156,7 +153,7 @@
 
     # Based on https://pytorch.org/get-started/locally/
 
-    $PIP_INSTALL torch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu116
+    $PIP_INSTALL torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0
         
 
 # ==================================================================
@@ -165,7 +162,8 @@
 
     # Based on https://github.com/google/jax#pip-installation-gpu-cuda
 
-    $PIP_INSTALL "jax[cuda11_cudnn82]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    $PIP_INSTALL "jax[cuda12_local]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
 
 
 # ==================================================================
@@ -175,7 +173,7 @@
     # Based on https://www.tensorflow.org/install/pip
 
     # export LD_LIBRARY_PATH=${HOME}/anaconda3/lib
-    $PIP_INSTALL tensorflow==2.9.2
+    $PIP_INSTALL tensorflow==2.14.0
 
 
 # ==================================================================
@@ -185,7 +183,7 @@
     # Based on https://huggingface.co/docs/transformers/installation
     # Based on https://huggingface.co/docs/datasets/installation
 
-    $PIP_INSTALL transformers==4.21.3 datasets==2.4.0
+    $PIP_INSTALL transformers==4.34.1 datasets==2.14.5
 
 
 # ==================================================================
@@ -194,7 +192,7 @@
 
     # Based on https://jupyterlab.readthedocs.io/en/stable/getting_started/installation.html#pip
 
-    $PIP_INSTALL jupyterlab==3.4.6
+    $PIP_INSTALL jupyterlab==4.0.7
 
 
 # ==================================================================
@@ -202,34 +200,34 @@
 # ------------------------------------------------------------------
 
     $PIP_INSTALL \
-        numpy==1.23.2 \
-        scipy==1.9.1 \
-        pandas==1.4.4 \
-        cloudpickle==2.1.0 \
-        scikit-image==0.19.3 \
-        scikit-learn==1.1.2 \
-        matplotlib==3.5.3 \
-        ipython==8.5.0 \
-        ipykernel==6.15.2 \
-        ipywidgets==8.0.2 \
-        cython==0.29.32 \
-        tqdm==4.64.1 \
-        gdown==4.5.1 \
-        xgboost==1.6.2 \
-        pillow==9.2.0 \
-        seaborn==0.12.0 \
+        numpy==1.26.1 \
+        scipy==1.11.3 \
+        pandas==2.1.1 \
+        cloudpickle==3.0.0 \
+        scikit-image==0.22.0 \
+        scikit-learn==1.3.1 \
+        matplotlib==3.8.0 \
+        ipython==8.16.1 \
+        ipykernel==6.25.2 \
+        ipywidgets==8.1.1 \
+        cython==3.0.4 \
+        tqdm==4.66.1 \
+        gdown==4.7.1 \
+        xgboost==2.0.0 \
+        pillow==10.1.0 \
+        seaborn==0.13.0 \
         sqlalchemy==1.4.40 \
-        spacy==3.4.1 \
-        nltk==3.7 \
-        boto3==1.24.66 \
-        tabulate==0.8.10 \
-        future==0.18.2 \
+        spacy==3.7.2 \
+        nltk==3.8.1 \
+        boto3==1.28.66 \
+        tabulate==0.9.0 \
+        future==0.18.3 \
         gradient==2.0.6 \
         jsonify==0.5 \
-        opencv-python==4.6.0.66 \
-        pyyaml==5.4.1 \
+        opencv-python==4.8.1.78 \
+        PyYAML==5.4.1 \
         sentence-transformers==2.2.2 \
-        wandb==0.13.4
+        wandb==0.15.12
 
 
 # ==================================================================
@@ -254,7 +252,7 @@
 # Node.js and Jupyter Notebook Extensions
 # ------------------------------------------------------------------
 
-    sudo curl -sL https://deb.nodesource.com/setup_16.x | sudo bash
+    sudo curl -sL https://deb.nodesource.com/setup_20.x | sudo bash
     sudo $APT_INSTALL nodejs
     $PIP_INSTALL jupyter_contrib_nbextensions jupyterlab-git
     DEBIAN_FRONTEND=noninteractive jupyter contrib nbextension install --user
