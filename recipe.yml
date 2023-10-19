@@ -1,0 +1,177 @@
+# MIT License
+#
+# Copyright (c) 2010 Clivern
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
+tasks:
+
+  # ==================================================================
+  # Tools
+  # ------------------------------------------------------------------
+  - name: Update apt cache
+    become: true
+    apt:
+      update_cache: yes
+
+  - name: Install packages
+    become: true
+    apt:
+      name:
+        - gcc
+        - make
+        - pkg-config
+        - apt-transport-https
+        - build-essential
+        - apt-utils
+        - ca-certificates
+        - wget
+        - rsync
+        - git
+        - vim
+        - mlocate
+        - libssl-dev
+        - curl
+        - openssh-client
+        - unzip
+        - unrar
+        - zip
+        - awscli
+        - csvkit
+        - emacs
+        - joe
+        - jq
+        - dialog
+        - man-db
+        - manpages
+        - manpages-dev
+        - manpages-posix
+        - manpages-posix-dev
+        - nano
+        - iputils-ping
+        - sudo
+        - ffmpeg
+        - libsm6
+        - libxext6
+        - libboost-all-dev
+      state: present
+
+  # ==================================================================
+  # Python
+  # ------------------------------------------------------------------
+
+  - name: Install software-properties-common
+    become: true
+    apt:
+      name: software-properties-common
+      state: present
+
+  - name: Install Python 3.10
+    become: true
+    apt:
+      name:
+        - python3.10
+        - python3.10-dev
+        - python3.10-venv
+        - python3-distutils-extra
+      state: present
+
+  - name: Add symlinks for Python 3.10
+    become: true
+    file:
+      src: /usr/bin/python3.10
+      dest: /usr/local/bin/python3
+      state: link
+    file:
+      src: /usr/bin/python3.10
+      dest: /usr/local/bin/python
+      state: link
+
+  - name: Install pip for Python 3.10
+    become: true
+    shell: curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+    environment:
+      PATH: "{{ ansible_env.PATH }}:/home/paperspace/.local/bin"
+
+
+  # ==================================================================
+  # Installing CUDA packages (CUDA Toolkit 12.2.2 & CUDNN 8.9.4)
+  # ------------------------------------------------------------------
+
+  - name: Download CUDA installer
+    get_url:
+      url: https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_535.104.05_linux.run
+      dest: /tmp/cuda_12.2.2_535.104.05_linux.run
+
+  - name: Install CUDA toolkit
+    become: true
+    shell: sudo sh /tmp/cuda_12.2.2_535.104.05_linux.run --silent --toolkit
+    args:
+      executable: /bin/bash
+
+  - name: Add CUDA binaries to PATH
+    become: true
+    lineinfile:
+      path: /etc/environment
+      line: 'PATH="/usr/local/cuda-12.2/bin:$PATH"'
+      state: present
+
+  - name: Add CUDA libraries to LD_LIBRARY_PATH
+    become: true
+    lineinfile:
+      path: /etc/environment
+      line: 'LD_LIBRARY_PATH="/usr/local/cuda-12.2/lib64:$LD_LIBRARY_PATH"'
+      state: present
+
+  - name: Remove CUDA installer
+    become: true
+    file:
+      path: /tmp/cuda_12.2.2_535.104.05_linux.run
+      state: absent
+
+  - name: Add CUDA repository pin
+    become: true
+    copy:
+      src: cuda-ubuntu2204.pin
+      dest: /etc/apt/preferences.d/cuda-repository-pin-600
+
+  - name: Add CUDA repository key
+    become: true
+    apt_key:
+      url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+
+  - name: Add CUDA repository
+    become: true
+    apt_repository:
+      repo: 'deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /'
+      state: present
+
+  - name: Install libcudnn8
+    become: true
+    apt:
+      name: libcudnn8=8.9.4.*-1+cuda12.2
+      state: present
+
+  - name: Install libcudnn8-dev
+    become: true
+    apt:
+      name: libcudnn8-dev=8.9.4.*-1+cuda12.2
+      state: present
+
